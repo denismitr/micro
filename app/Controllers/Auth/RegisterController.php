@@ -6,6 +6,7 @@ namespace App\Controllers\Auth;
 
 use App\Auth\JwtAuthInterface;
 use App\Controllers\Controller;
+use App\Models\User;
 use Psr\Http\Message\{
     RequestInterface as Request,
     ResponseInterface as Response

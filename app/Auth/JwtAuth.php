@@ -3,6 +3,8 @@
 namespace App\Auth;
 
 
+use App\Models\User;
+
 class JwtAuth implements JwtAuthInterface
 {
     protected $usernameColumn = 'email';

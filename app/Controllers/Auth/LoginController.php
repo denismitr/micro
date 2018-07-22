@@ -29,7 +29,7 @@ class LoginController extends Controller
 
     public function login(Request $request, Response $response)
     {
-        if ( !$token = $this->auth->attempt($request->getBody())) {
+        if ( !$token = $this->retrieveToken($request)) {
             return $response->withJson([
                 'message' => 'Authentication failed.',
             ], 401);
@@ -38,5 +38,13 @@ class LoginController extends Controller
         return $response->withJson([
             'token' => $token,
         ]);
+    }
+
+    protected function retrieveToken(Request $request): ?string
+    {
+        return $this->auth->attempt(
+            $request->getParam('username'),
+            $request->getParam('password')
+        );
     }
 }
