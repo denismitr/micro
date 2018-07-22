@@ -36,4 +36,6 @@ $capsule->addConnection($container->get('settings')->get('db'));
 $capsule->setAsGlobal();
 $capsule->bootEloquent();
 
+$container->addServiceProvider(new \App\Providers\AuthServiceProvider());
+
 require_once __DIR__ . '/../routes/web.php';
