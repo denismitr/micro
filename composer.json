@@ -1,0 +1,24 @@
+{
+    "name": "denismitr/micro",
+    "description": "Micro is a minimalistic framework to build REST API's with JWT authentication baked in",
+    "keywords": ["framework", "micro", "rest", "api", "jwt"],
+    "license": "MIT",
+    "type": "project",
+    "require": {
+        "php": ">=7.1.0",
+        "slim/slim": "^3.8",
+        "symfony/var-dumper": "^3.2",
+        "vlucas/phpdotenv": "^2.4",
+        "jenssegers/lean": "^0.3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app"
+        }
+    },
+    "scripts": {
+        "post-root-package-install": [
+            "php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ]
+    }
+}
