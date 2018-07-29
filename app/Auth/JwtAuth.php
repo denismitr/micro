@@ -7,16 +7,35 @@ use App\Models\User;
 
 class JwtAuth implements JwtAuthInterface
 {
-    protected $usernameColumn = 'email';
+    /**
+     * @var AuthProviderInterface
+     */
+    protected $auth;
+    /**
+     * @var TokenFactory
+     */
+    protected $factory;
 
+    /**
+     * JwtAuth constructor.
+     * @param AuthProviderInterface $auth
+     * @param TokenFactory $factory
+     */
+    public function __construct(AuthProviderInterface $auth, TokenFactory $factory)
+    {
+        $this->auth = $auth;
+        $this->factory = $factory;
+    }
+
+    /**
+     * @param null|string $username
+     * @param null|string $password
+     * @return boolean|string
+     */
     public function attempt(?string $username, ?string $password): ?string
     {
-        if ( !$user = User::where($this->usernameColumn, $username)->first()) {
-            return null;
-        }
-
-        if ( ! password_verify($password, $user->password)) {
-            return null;
+        if ( ! $user = $this->auth->byCredentials($username, $password)) {
+            return false;
         }
 
         return 'fake_token';
@@ -31,14 +50,23 @@ class JwtAuth implements JwtAuthInterface
         return password_hash($password, PASSWORD_BCRYPT);
     }
 
-    /**
-     * @param string $usernameColumn
-     * @return JwtAuth
-     */
-    public function setUsernameColumn(string $usernameColumn): self
+    protected function fromSubject(JwtSubject $subject)
     {
-        $this->usernameColumn = $usernameColumn;
 
-        return $this;
+    }
+
+    protected function makePayload(JwtSubject $subject): array
+    {
+        return $this->factory->withClaims(
+            $this->getClaimsForSubject($subject)
+        )->make();
+    }
+
+    protected function getClaimsForSubject(JwtSubject $subject): array
+    {
+        return [
+            'sub' => $subject->getJwtIdentifier(),
+
+        ];
     }
 }
