@@ -38,7 +38,7 @@ class JwtAuth implements JwtAuthInterface
             return false;
         }
 
-        return 'fake_token';
+        return $this->fromSubject($user);
     }
 
     /**
@@ -50,23 +50,22 @@ class JwtAuth implements JwtAuthInterface
         return password_hash($password, PASSWORD_BCRYPT);
     }
 
-    protected function fromSubject(JwtSubject $subject)
+    protected function fromSubject(JwtSubject $subject): string
     {
-
+        return $this->factory->encode($this->makePayload($subject));
     }
 
     protected function makePayload(JwtSubject $subject): array
     {
         return $this->factory->withClaims(
             $this->getClaimsForSubject($subject)
-        )->make();
+        )->build();
     }
 
     protected function getClaimsForSubject(JwtSubject $subject): array
     {
         return [
             'sub' => $subject->getJwtIdentifier(),
-
         ];
     }
 }

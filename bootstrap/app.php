@@ -30,6 +30,12 @@ $container->get('settings')
         'prefix' => ''
     ]);
 
+$container->get('settings')->set('jwt', [
+    'ttl' => getenv('JWT_TTL'),
+    'secret' => getenv('JWT_SECRET'),
+    'algo' => getenv('JWT_ALGO'),
+]);
+
 
 $capsule = new \Illuminate\Database\Capsule\Manager();
 $capsule->addConnection($container->get('settings')->get('db'));

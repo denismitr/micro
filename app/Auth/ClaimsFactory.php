@@ -4,6 +4,9 @@ namespace App\Auth;
 
 
 use Carbon\Carbon;
+use Slim\Http\Request;
+use Slim\Settings;
+use Psr\Http\Message\RequestInterface;
 
 class ClaimsFactory
 {
@@ -12,6 +15,9 @@ class ClaimsFactory
      */
     protected $now;
 
+    /**
+     * @var array
+     */
     protected $allClaims = [
         'iss',
         'iat',
@@ -21,11 +27,26 @@ class ClaimsFactory
     ];
 
     /**
-     * ClaimsFactory constructor.
+     * @var RequestInterface
      */
-    public function __construct()
+    protected $request;
+
+    /**
+     * @var Settings
+     */
+    protected $settings;
+
+    /**
+     * ClaimsFactory constructor.
+     * @param RequestInterface $request
+     * @param Settings $settings
+     */
+    public function __construct(RequestInterface $request, Settings $settings)
     {
         $this->now = Carbon::now();
+
+        $this->request = $request;
+        $this->settings = $settings;
     }
 
     /**
@@ -38,15 +59,15 @@ class ClaimsFactory
 
     public function iss(): string
     {
-        return '';
+        return (string) $this->request->getUri();
     }
 
-    public function iat()
+    public function iat(): int
     {
         return $this->now->getTimestamp();
     }
 
-    public function nbf()
+    public function nbf(): int
     {
         return $this->now->getTimestamp();
     }
@@ -56,9 +77,11 @@ class ClaimsFactory
         return bin2hex(str_random(32));
     }
 
-    public function exp()
+    public function exp(): int
     {
-        return $this->now->addMinutes(60)->getTimestamp();
+        return $this->now->addMinutes(
+            $this->settings->get('jwt.ttl')
+        )->getTimestamp();
     }
 
     public function make(string $claim)
