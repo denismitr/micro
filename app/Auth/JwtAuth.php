@@ -8,23 +8,36 @@ use App\Models\User;
 class JwtAuth implements JwtAuthInterface
 {
     /**
-     * @var AuthProviderInterface
+     * @var Authenticatable
      */
     protected $auth;
+
     /**
      * @var TokenFactory
      */
     protected $factory;
 
     /**
-     * JwtAuth constructor.
-     * @param AuthProviderInterface $auth
-     * @param TokenFactory $factory
+     * @var JwtParser
      */
-    public function __construct(AuthProviderInterface $auth, TokenFactory $factory)
+    private $parser;
+
+    /**
+     * @var User
+     */
+    protected $user = null;
+
+    /**
+     * JwtAuth constructor.
+     * @param Authenticatable $auth
+     * @param TokenFactory $factory
+     * @param JwtParser $parser
+     */
+    public function __construct(Authenticatable $auth, TokenFactory $factory, JwtParser $parser)
     {
         $this->auth = $auth;
         $this->factory = $factory;
+        $this->parser = $parser;
     }
 
     /**
@@ -42,6 +55,19 @@ class JwtAuth implements JwtAuthInterface
     }
 
     /**
+     * @param string $token
+     * @return $this
+     */
+    public function authenticate(string $token)
+    {
+        $this->user = $this->auth->byId(
+            $this->parser->decode($token)->getSubject()
+        );
+
+        return $this;
+    }
+
+    /**
      * @param string $password
      * @return string
      */
@@ -55,6 +81,10 @@ class JwtAuth implements JwtAuthInterface
         return $this->factory->encode($this->makePayload($subject));
     }
 
+    /**
+     * @param JwtSubject $subject
+     * @return array
+     */
     protected function makePayload(JwtSubject $subject): array
     {
         return $this->factory->withClaims(

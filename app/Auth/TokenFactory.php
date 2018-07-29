@@ -3,10 +3,6 @@
 namespace App\Auth;
 
 
-use Carbon\Carbon;
-use Firebase\JWT\JWT;
-use Slim\Settings;
-
 class TokenFactory
 {
     /**
@@ -20,19 +16,19 @@ class TokenFactory
     protected $claimsFactory;
 
     /**
-     * @var Settings
+     * @var JwtProvider
      */
-    protected $settings;
+    protected $encoder;
 
     /**
      * TokenFactory constructor.
      * @param ClaimsFactory $claimsFactory
-     * @param Settings $settings
+     * @param JwtProvider $encoder
      */
-    public function __construct(ClaimsFactory $claimsFactory, Settings $settings)
+    public function __construct(ClaimsFactory $claimsFactory, JwtProvider $encoder)
     {
         $this->claimsFactory = $claimsFactory;
-        $this->settings = $settings;
+        $this->encoder = $encoder;
     }
 
     public function build(): array
@@ -52,11 +48,7 @@ class TokenFactory
      */
     public function encode(array $claims): string
     {
-        return JWT::encode(
-            $claims,
-            $this->settings->get('jwt.secret'),
-            $this->settings->get('jwt.algo')
-        );
+        return $this->encoder->encode($claims);
     }
 
     /**

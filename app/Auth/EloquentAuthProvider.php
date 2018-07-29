@@ -5,7 +5,7 @@ namespace App\Auth;
 
 use App\Models\User;
 
-class EloquentAuthProvider implements AuthProviderInterface
+class EloquentAuthProvider implements Authenticatable
 {
     protected $usernameColumns;
 
@@ -34,6 +34,15 @@ class EloquentAuthProvider implements AuthProviderInterface
         }
 
         return $user;
+    }
+
+    /**
+     * @param $id
+     * @return User
+     */
+    public function byId($id): User
+    {
+        return User::findOrFail($id);
     }
 
     /**
